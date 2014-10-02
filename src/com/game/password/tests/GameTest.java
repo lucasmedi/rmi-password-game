@@ -1,4 +1,4 @@
-package com.password.game.tests;
+package com.game.password.tests;
 
 import static org.junit.Assert.*;
 import org.junit.Test;

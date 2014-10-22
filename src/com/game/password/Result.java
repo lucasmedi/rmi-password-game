@@ -1,6 +1,9 @@
 package com.game.password;
 
 public class Result {
+	
+	private int triesLeft;
+	
 	private int blacks;
 	private int whites;
 	private int greys;
@@ -9,6 +12,10 @@ public class Result {
 		this.blacks = blacks;
 		this.whites = whites;
 		this.greys = greys;
+	}
+	
+	public int getTriesLeft() {
+		return triesLeft;
 	}
 	
 	public int getBlacks() {
@@ -21,6 +28,10 @@ public class Result {
 	
 	public int getGreys() {
 		return greys;
+	}
+	
+	public void setTriesLeft(int triesLeft) {
+		this.triesLeft = triesLeft;
 	}
 	
 	public boolean equals(Object other) {

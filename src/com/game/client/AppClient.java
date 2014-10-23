@@ -106,8 +106,9 @@ public class AppClient {
 	}
 	
 	private static void playGame() {
-		System.out.println("Let's play a game then!");
+		System.out.println("Let's play the game then!");
 		
+		showRules();
 		
 		//game = GameFactory.createGame(); 
 		//String userId = game.start(name);
@@ -127,13 +128,20 @@ public class AppClient {
 		//	System.out.println ("Nota: "+n);
 	}
 	
+	private static void showRules() {
+		System.out.println("Rules are:");
+		System.out.println("1- The answer is a combination of 4 colors of the 6 available.");
+		System.out.println("2- The color do not repeat themselves in the same answer.");
+		System.out.println("3- The available colors are: (R)ed, (Y)ellow, (G)reen, (B)lue, (P)urple and Pin(K)");
+		System.out.println("4- You have infinite amout of tries.");
+		System.out.println("And that's it!");
+	}
+	
 	private static void seeLeaderboards() {
-		System.out.println("Who's the best?");
-		
+		System.out.println("Who are the best?");
 	}
 	
 	private static void leaveGame() {
 		System.out.println("See ya!");
-		
 	}
 }

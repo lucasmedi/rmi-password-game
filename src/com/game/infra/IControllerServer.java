@@ -5,6 +5,14 @@ import java.rmi.RemoteException;
 
 public interface IControllerServer extends Remote {
 	
-	public String start(String username) throws RemoteException;
+	public String login(String username) throws RemoteException;
+	
+	public void logout(String userId) throws RemoteException;
+	
+	public void startGame(String userId) throws RemoteException;
+	
+	public void finishGame(String userId) throws RemoteException;
+	
+	public IResult tryAnswer(String userId, Color[] attempt) throws RemoteException;
 	
 }

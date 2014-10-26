@@ -3,26 +3,20 @@ package com.game.password;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import com.game.infra.Color;
+import com.game.infra.IResult;
+
 public class Game {
 	
-	private int answerLength = 4;
-	private int triesLeft;
+	private UUID userId;
+	private String username;
 	
-	private Color[] answer;
+	private Match current;
+	private ArrayList<Match> history;
 	
-	public UUID userId;
-	public String username;
-	
-	public Game() {
-		answer = new Color[] { Color.Red, Color.Green, Color.Red, Color.Green };
-		triesLeft = 5;
-		
+	public Game(String username) {
 		userId = UUID.randomUUID();
-	}
-	
-	public Game(Color[] answer) {
-		this.answer = answer;
-		triesLeft = 5;
+		this.username = username;
 	}
 	
 	public String getUserId() {
@@ -33,40 +27,21 @@ public class Game {
 		return username;
 	}
 	
-	public Result Try(Color[] attempt) {
-		int blacks = 0;
-		int whites = 0;
-		
-		ArrayList<Integer> excluded = new ArrayList<Integer>();
-		
-		// search for matches
-		for (int i = 0; i < attempt.length; i++) {
-			if (attempt[i] == answer[i]) {
-				blacks++;
-				excluded.add(i);
-			}
+	public boolean startGame() {
+		if (current != null) {
+			history.add(current);
 		}
 		
-		// search for near
-		for (int i = 0; i < attempt.length; i++) {
-			for (int j = 0; j < answer.length; j++) {
-				if (excluded.contains(j)) {
-					continue;
-				}
-				
-				if (attempt[i] == answer[j]) {
-					whites++;
-					excluded.add(j);
-					continue;
-				}
-			}
+		current = new Match();
+		
+		return true;
+	}
+	
+	public IResult tryAnswer(Color[] attempt) {
+		if (current == null) {
+			current = new Match();
 		}
 		
-		triesLeft--;
-		
-		Result res = new Result(blacks, whites, (answerLength - blacks - whites));
-		res.setTriesLeft(triesLeft);
-		
-		return res;
+		return current.tryAnswer(attempt);
 	}
 }

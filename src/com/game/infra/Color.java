@@ -1,4 +1,4 @@
-package com.game.password;
+package com.game.infra;
 
 public enum Color {
 	Red,

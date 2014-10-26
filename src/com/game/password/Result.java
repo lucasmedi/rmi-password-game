@@ -1,37 +1,46 @@
 package com.game.password;
 
-public class Result {
-	
-	private int triesLeft;
+import com.game.infra.IResult;
+
+public class Result implements IResult {
 	
 	private int blacks;
 	private int whites;
 	private int greys;
 	
-	public Result(int blacks, int whites, int greys) {
+	private int score;
+	
+	public Result(int blacks, int whites, int greys, int score) {
 		this.blacks = blacks;
 		this.whites = whites;
 		this.greys = greys;
+		
+		this.score = score;
 	}
 	
-	public int getTriesLeft() {
-		return triesLeft;
+	@Override
+	public boolean succeeded() {
+		return (this.blacks == 4);
 	}
 	
+	@Override
+	public int getScore() {
+		return this.score;
+	}
+	
+	@Override
 	public int getBlacks() {
 		return blacks;
 	}
 	
+	@Override
 	public int getWhites() {
 		return whites;
 	}
 	
+	@Override
 	public int getGreys() {
 		return greys;
-	}
-	
-	public void setTriesLeft(int triesLeft) {
-		this.triesLeft = triesLeft;
 	}
 	
 	public boolean equals(Object other) {

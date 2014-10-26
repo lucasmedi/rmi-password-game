@@ -4,11 +4,14 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.Scanner;
 
+import com.game.infra.Color;
 import com.game.infra.IControllerServer;
+import com.game.infra.IResult;
 import com.game.infra.StringUtils;
 
 public class AppClient {
 	private static IControllerServer game;
+	private static String userId;
 	
 	public static void main(String[] args) {
 		try {
@@ -56,10 +59,16 @@ public class AppClient {
 			}
 			
 			String input = sc.nextLine();
+			
 			if (input.toUpperCase().equals("S")) {
 				confirm = true;
 			}
 		} while (!confirm);
+		
+		System.out.println("Creating game session, please hold on a sec...");
+		
+		game = GameFactory.createGame();
+		userId = game.login(name);
 		
 		System.out.println("OK " + name + ", we are ready to go!");
 		showMenu(sc);
@@ -71,14 +80,16 @@ public class AppClient {
 		do {
 			System.out.println("1- Start a new game :)");
 			System.out.println("2- Take a look at the leaderboards");
-			System.out.println("3- Say good bye and leave :(");
+			System.out.println("3- Rules of the game");
+			System.out.println("4- Say good bye and leave :(");
 			System.out.print("What would you like to do? ");
 			option = sc.nextLine();
 			
 			if (!StringUtils.isEmpty(option)) {
 				confirm = option.equals("1")
 					|| option.equals("2")
-					|| option.equals("3");
+					|| option.equals("3")
+					|| option.equals("4");
 			}
 			
 			if (!confirm) {
@@ -88,12 +99,15 @@ public class AppClient {
 			confirm = false;
 			switch (option) {
 				case "1":
-					playGame();
+					playGame(sc);
 					break;
 				case "2":
 					seeLeaderboards();
 					break;
 				case "3":
+					showRules();
+					break;
+				case "4":
 					leaveGame();
 					confirm = true;
 					break;
@@ -105,40 +119,107 @@ public class AppClient {
 		} while (!confirm);
 	}
 	
-	private static void playGame() {
+	private static void playGame(Scanner sc) {
+		howToPlay();
+		
 		System.out.println("Let's play the game then!");
 		
-		showRules();
+		boolean leave = false;
+		Integer tries = 1;
+		String attempt = "";
+		String valid = "RYGBPK";
 		
-		//game = GameFactory.createGame(); 
-		//String userId = game.start(name);
-		
-		//System.out.println(userId);
-		
-		//n = game.obtemNota(args[1]);
-		
-		//Game game = new Game();
-		//Color[] attempt = new Color[] { Color.Green, Color.Red, Color.Green, Color.Red };
-		//game.Try(attempt);
-		
-		//System.out.println ("Name: " + args[1]);
-		//if	(n < -1.0)
-		//	System.out.println ("Resultado: nome nao encontrado!\n");
-		//else
-		//	System.out.println ("Nota: "+n);
+		do {
+			System.out.println("> Try " + tries + ":");
+			System.out.print("Say it: ");
+			attempt = sc.nextLine();
+			
+			if (StringUtils.isEmpty(attempt)) {
+				System.out.println("If you don't make an attempt, it's quite logical that you won't ever win the game.");
+				System.out.println("Let's try again...");
+				continue;
+			}
+			
+			if (attempt.length() > 4) {
+				System.out.println("That's not quite what we expected, take a look at this attemp example: RYGB.");
+				System.out.println("Let's try again...");
+				continue;
+			}
+			
+			if (!attempt.matches("[RYGBPK]{4}")) {
+				System.out.println("That's not quite what we expected, take a look at this attemp example: RYGB.");
+				System.out.println("Let's try again...");
+				continue;
+			}
+			
+			try {
+				IResult res = game.tryAnswer(userId, colorize(attempt));
+				if (res.succeeded())
+				{
+					System.out.println("Congrats! You nailed it!");
+					
+				}
+				
+				
+				
+				
+				tries++;
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		} while(leave);
 	}
 	
 	private static void showRules() {
 		System.out.println("Rules are:");
-		System.out.println("1- The answer is a combination of 4 colors of the 6 available.");
-		System.out.println("2- The color do not repeat themselves in the same answer.");
+		System.out.println("1- The answer is a combination of 4 colors of the 6 colors available.");
+		System.out.println("2- The colors do not repeat themselves in the same answer.");
 		System.out.println("3- The available colors are: (R)ed, (Y)ellow, (G)reen, (B)lue, (P)urple and Pin(K)");
 		System.out.println("4- You have infinite amout of tries.");
-		System.out.println("And that's it!");
+		System.out.println("And that's it! Simple as that!");
+	}
+	
+	private static void howToPlay() {
+		System.out.println("Just in case you feel a little bit lost:");
+		System.out.println("Colors are: (R)ed, (Y)ellow, (G)reen, (B)lue, (P)urple and Pin(K)");
+		System.out.println("Attemp example: RYGB");
 	}
 	
 	private static void seeLeaderboards() {
 		System.out.println("Who are the best?");
+	}
+	
+	private static Color[] colorize(String attempt) {
+		Color[] colors = new Color[4];
+		
+		char[] cArray = attempt.toCharArray();
+		
+		for (int i = 0; i < cArray.length; i++) {
+			switch (cArray[i]) {
+				case 'R':
+					colors[i] = Color.Red;
+					break;
+				case 'Y':
+					colors[i] = Color.Yellow;
+					break;
+				case 'G':
+					colors[i] = Color.Green;
+					break;
+				case 'B':
+					colors[i] = Color.Blue;
+					break;
+				case 'P':
+					colors[i] = Color.Purple;
+					break;
+				case 'K':
+					colors[i] = Color.Pink;
+					break;
+				default:
+					break;
+			}
+		}
+		
+		return colors;
 	}
 	
 	private static void leaveGame() {

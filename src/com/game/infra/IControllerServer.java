@@ -15,4 +15,5 @@ public interface IControllerServer extends Remote {
 	
 	public IResult tryAnswer(String userId, Color[] attempt) throws RemoteException;
 	
+	public String[] getLeaderboard() throws RemoteException;
 }

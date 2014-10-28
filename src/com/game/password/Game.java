@@ -17,6 +17,8 @@ public class Game {
 	public Game(String username) {
 		userId = UUID.randomUUID();
 		this.username = username;
+		
+		this.history = new ArrayList<Match>();
 	}
 	
 	public String getUserId() {
@@ -33,6 +35,16 @@ public class Game {
 		}
 		
 		current = new Match();
+		
+		return true;
+	}
+	
+	public boolean finishGame() {
+		if (current != null) {
+			history.add(current);
+		}
+		
+		current = null;
 		
 		return true;
 	}

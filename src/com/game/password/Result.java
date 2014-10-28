@@ -1,8 +1,12 @@
 package com.game.password;
 
+import java.io.Serializable;
+
 import com.game.infra.IResult;
 
-public class Result implements IResult {
+public class Result implements IResult, Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	private int blacks;
 	private int whites;

@@ -1,6 +1,5 @@
 package com.game.client;
 
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.Scanner;
 
@@ -21,9 +20,9 @@ public class AppClient {
 			
 			sc.close();
 		} catch (RemoteException e) {
-			// TODO: handle RemoteException
+			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO: handle generic exception
+			e.printStackTrace();
 		}
 	}
 	
@@ -74,7 +73,7 @@ public class AppClient {
 		showMenu(sc);
 	}
 	
-	private static void showMenu(Scanner sc) {
+	private static void showMenu(Scanner sc) throws RemoteException {
 		String option = null;
 		boolean confirm = false;
 		do {
@@ -99,10 +98,29 @@ public class AppClient {
 			confirm = false;
 			switch (option) {
 				case "1":
-					playGame(sc);
+					boolean leave = false;
+					game.startGame(userId);
+					
+					do {
+						leave = playGame(sc);
+						
+						if (!leave) {
+							System.out.print("Wanna play again? (S/N) ");
+							String input = sc.nextLine();
+							
+							if (input.toUpperCase().equals("N")) {
+								leave = true;
+							} else {
+								game.startGame(userId);
+							}
+						}
+					} while(!leave);
+					
+					game.finishGame(userId);
+					
 					break;
 				case "2":
-					seeLeaderboards();
+					seeLeaderboard();
 					break;
 				case "3":
 					showRules();
@@ -119,7 +137,7 @@ public class AppClient {
 		} while (!confirm);
 	}
 	
-	private static void playGame(Scanner sc) {
+	private static boolean playGame(Scanner sc) throws RemoteException {
 		howToPlay();
 		
 		System.out.println("Let's play the game then!");
@@ -127,16 +145,22 @@ public class AppClient {
 		boolean leave = false;
 		Integer tries = 1;
 		String attempt = "";
-		String valid = "RYGBPK";
 		
 		do {
 			System.out.println("> Try " + tries + ":");
-			System.out.print("Say it: ");
+			System.out.print("Say it (or 'quit' finish current match): ");
 			attempt = sc.nextLine();
 			
 			if (StringUtils.isEmpty(attempt)) {
 				System.out.println("If you don't make an attempt, it's quite logical that you won't ever win the game.");
 				System.out.println("Let's try again...");
+				continue;
+			}
+			
+			if (attempt.equals("quit")) {
+				game.finishGame(userId);
+				System.out.println("Ok then. Back to the menu...");
+				leave = true;
 				continue;
 			}
 			
@@ -152,22 +176,34 @@ public class AppClient {
 				continue;
 			}
 			
-			try {
-				IResult res = game.tryAnswer(userId, colorize(attempt));
-				if (res.succeeded())
-				{
-					System.out.println("Congrats! You nailed it!");
-					
-				}
-				
-				
-				
-				
-				tries++;
-			} catch (RemoteException e) {
-				e.printStackTrace();
+			IResult res = game.tryAnswer(userId, colorize(attempt));
+			if (res.succeeded()) {
+				System.out.println("Congrats! You nailed it! Your score was: " + res.getScore());
+				leave = true;
+			} else {
+				System.out.println("Let's see, you got: " + res.getBlacks() + " blacks and " + res.getWhites() + " whites. Try again...");
 			}
-		} while(leave);
+				
+			tries++;
+		} while(!leave);
+		
+		return (attempt.toLowerCase().equals("quit"));
+	}
+	
+	private static void seeLeaderboard() throws RemoteException {
+		System.out.println("Who are the top 10?");
+		String[] leaderboard = game.getLeaderboard();
+		for (String score : leaderboard) {
+			if (score != null) {
+				System.out.println(score);
+			}
+		}
+		System.out.println("And that's it!");
+	}
+	
+	private static void leaveGame() throws RemoteException {
+		game.logout(userId);
+		System.out.println("See ya!");
 	}
 	
 	private static void showRules() {
@@ -182,11 +218,7 @@ public class AppClient {
 	private static void howToPlay() {
 		System.out.println("Just in case you feel a little bit lost:");
 		System.out.println("Colors are: (R)ed, (Y)ellow, (G)reen, (B)lue, (P)urple and Pin(K)");
-		System.out.println("Attemp example: RYGB");
-	}
-	
-	private static void seeLeaderboards() {
-		System.out.println("Who are the best?");
+		System.out.println("Attempt example: RYGB");
 	}
 	
 	private static Color[] colorize(String attempt) {
@@ -220,9 +252,5 @@ public class AppClient {
 		}
 		
 		return colors;
-	}
-	
-	private static void leaveGame() {
-		System.out.println("See ya!");
 	}
 }

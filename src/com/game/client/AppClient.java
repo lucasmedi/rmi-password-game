@@ -11,6 +11,7 @@ import com.game.infra.StringUtils;
 public class AppClient {
 	private static IControllerServer game;
 	private static String userId;
+	private static String name;
 	
 	public static void main(String[] args) {
 		try {
@@ -30,7 +31,7 @@ public class AppClient {
 		boolean first = true;
 		boolean confirm = false;
 		
-		String name = null;
+		name = null;
 		
 		System.out.println("***** Welcome to the awesome password game! *****");
 		
@@ -78,9 +79,10 @@ public class AppClient {
 		boolean confirm = false;
 		do {
 			System.out.println("1- Start a new game :)");
-			System.out.println("2- Take a look at the leaderboards");
-			System.out.println("3- Rules of the game");
-			System.out.println("4- Say good bye and leave :(");
+			System.out.println("2- Start a new test game");
+			System.out.println("3- Take a look at the leaderboards");
+			System.out.println("4- Rules of the game");
+			System.out.println("5- Say good bye and leave :(");
 			System.out.print("What would you like to do? ");
 			option = sc.nextLine();
 			
@@ -88,17 +90,21 @@ public class AppClient {
 				confirm = option.equals("1")
 					|| option.equals("2")
 					|| option.equals("3")
-					|| option.equals("4");
+					|| option.equals("4")
+					|| option.equals("5");
 			}
 			
 			if (!confirm) {
 				continue;
 			}
 		
+			boolean leave = false;
+			
 			confirm = false;
 			switch (option) {
 				case "1":
-					boolean leave = false;
+					leave = false;
+					
 					game.startGame(userId);
 					
 					do {
@@ -120,12 +126,41 @@ public class AppClient {
 					
 					break;
 				case "2":
-					seeLeaderboard();
+					leave = false;
+					
+					int times = 0;
+					
+					Color[] answer = askForAnswer(sc, times);
+					game.startGame(userId, answer);
+					times++;
+					
+					do {
+						leave = playGame(sc);
+						
+						if (!leave) {
+							System.out.print("Wanna play again? (S/N) ");
+							String input = sc.nextLine();
+							
+							if (input.toUpperCase().equals("N")) {
+								leave = true;
+							} else {
+								answer = askForAnswer(sc, times);
+								game.startGame(userId, answer);
+								times++;
+							}
+						}
+					} while(!leave);
+					
+					game.finishGame(userId);
+					
 					break;
 				case "3":
-					showRules();
+					seeLeaderboard();
 					break;
 				case "4":
+					showRules();
+					break;
+				case "5":
 					leaveGame();
 					confirm = true;
 					break;
@@ -140,7 +175,7 @@ public class AppClient {
 	private static boolean playGame(Scanner sc) throws RemoteException {
 		howToPlay();
 		
-		System.out.println("Let's play the game then!");
+		System.out.println("\nLet's play the game then!");
 		
 		boolean leave = false;
 		Integer tries = 1;
@@ -187,27 +222,78 @@ public class AppClient {
 			tries++;
 		} while(!leave);
 		
+		System.out.println("OK, cheater, let's begin");
 		return (attempt.toLowerCase().equals("quit"));
 	}
 	
+	private static Color[] askForAnswer(Scanner sc, int times) {
+		Color[] answer = null;
+		String pswdString = null;
+		
+		if (times == 0) {
+			System.out.println("\n** Test game **");
+		} else if (times == 1) {
+			System.out.println("\n** Test game ** Don't you believe me?");
+		} else if (times == 2) {
+			System.out.println("\n** Test game ** You are cheating, aren't you?");
+		} else if (times >= 3 && times < 6) {
+			System.out.println("\n** Test game ** Keep going like that and you'll win a cheater trophy");
+		} else if (times == 6) {
+			System.out.println("\n** Test game ** Cheater trophy earned!");
+		} else {
+			System.out.println("\n** Test game ** Welcome back, " + name + ", The Legendary Cheater!");
+		}
+		
+		boolean leave = false;
+		
+		do {
+			System.out.print("Tell me the password you want to play with: ");
+			pswdString = sc.nextLine();
+					
+			if (StringUtils.isEmpty(pswdString)) {
+				System.out.println("You need to give me something to work with.");
+				System.out.println("Let's try again...");
+				continue;
+			}
+			
+			if (pswdString.length() > 4) {
+				System.out.println("That's not quite what we expected, take a look at this attemp example: RYGB.");
+				System.out.println("Let's try again...");
+				continue;
+			}
+			
+			if (!pswdString.matches("[RYGBPK]{4}")) {
+				System.out.println("That's not quite what we expected, take a look at this attemp example: RYGB.");
+				System.out.println("Let's try again...");
+				continue;
+			}
+			
+			answer = colorize(pswdString);
+			
+			leave = (answer != null);
+		} while(!leave);
+		
+		return answer;
+	}
+	
 	private static void seeLeaderboard() throws RemoteException {
-		System.out.println("Who are the top 10?");
+		System.out.println("\nWho are the top 10?");
 		String[] leaderboard = game.getLeaderboard();
 		for (String score : leaderboard) {
 			if (score != null) {
 				System.out.println(score);
 			}
 		}
-		System.out.println("And that's it!");
+		System.out.println("And that's it!\n");
 	}
 	
 	private static void leaveGame() throws RemoteException {
 		game.logout(userId);
-		System.out.println("See ya!");
+		System.out.println("Till next time! See ya!");
 	}
 	
 	private static void showRules() {
-		System.out.println("Rules are:");
+		System.out.println("\nRules are:");
 		System.out.println("1- The answer is a combination of 4 colors of the 6 colors available.");
 		System.out.println("2- The colors do not repeat themselves in the same answer.");
 		System.out.println("3- The available colors are: (R)ed, (Y)ellow, (G)reen, (B)lue, (P)urple and Pin(K)");
@@ -216,7 +302,7 @@ public class AppClient {
 	}
 	
 	private static void howToPlay() {
-		System.out.println("Just in case you feel a little bit lost:");
+		System.out.println("** Just in case you feel a little bit lost **");
 		System.out.println("Colors are: (R)ed, (Y)ellow, (G)reen, (B)lue, (P)urple and Pin(K)");
 		System.out.println("Attempt example: RYGB");
 	}

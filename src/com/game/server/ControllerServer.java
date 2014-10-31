@@ -55,6 +55,12 @@ public class ControllerServer extends UnicastRemoteObject implements IController
 	}
 	
 	@Override
+	public void startGame(String userId, Color[] answer) throws RemoteException {
+		Game g = getGame(userId);
+		g.startGame(answer);
+	}
+	
+	@Override
 	public void finishGame(String userId) throws RemoteException {
 		Game g = getGame(userId);
 		g.finishGame();
@@ -75,14 +81,14 @@ public class ControllerServer extends UnicastRemoteObject implements IController
 	
 	@Override
 	public String[] getLeaderboard() throws RemoteException {
-		String[] topPlayers = new String[10];
+		String[] topPlayers = new String[5];
 		
 		if (this.leaderboard.isEmpty()) {
 			return new String[] { "Empty leaderboard :(" };
 		}
 		
 		for (int i = 0; i < this.leaderboard.size(); i++) {
-			if (i == 10) {
+			if (i == 5) {
 				i = this.leaderboard.size();
 				continue;
 			}
@@ -112,11 +118,17 @@ public class ControllerServer extends UnicastRemoteObject implements IController
 			return;
 		}
 		
+		boolean added = false;
 		for (int i = 0; i < leaderboard.size(); i++) {
 			if (score > leaderboard.get(i).getScore()) {
 				leaderboard.add(i, new Score(username, score));
+				added = true;
 				break;
 			}
+		}
+		
+		if (!added) {
+			leaderboard.add(new Score(username, score));
 		}
 	}
 }

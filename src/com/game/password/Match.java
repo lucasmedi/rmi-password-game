@@ -13,8 +13,6 @@ public class Match {
 	private Color[] answer;
 	
 	public Match() {
-		//answer = new Color[] { Color.Red, Color.Yellow, Color.Green, Color.Blue };
-		
 		ArrayList<Color> t = new ArrayList<Color>();
 		
 		Random r = new Random();

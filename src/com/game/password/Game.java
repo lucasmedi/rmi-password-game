@@ -39,6 +39,16 @@ public class Game {
 		return true;
 	}
 	
+	public boolean startGame(Color[] answer) {
+		if (current != null) {
+			history.add(current);
+		}
+		
+		current = new Match(answer);
+		
+		return true;
+	}
+	
 	public boolean finishGame() {
 		if (current != null) {
 			history.add(current);

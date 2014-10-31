@@ -16,22 +16,24 @@ public class GameTest {
 		String attempt = "";
 		boolean res = false;
 		
+		System.out.print("attemptIsValidTest = ");
+		
 		// Invalid characters
 		attempt = "EYOK";
 		res = attempt.matches(pattern);
-		System.out.println(attempt + " is " + (res ? "valid" : "invalid"));
+		System.out.print(attempt + " is " + (res ? "valid" : "invalid") + "; ");
 		assertFalse(res);
 		
 		// Invalid number of right characters
 		attempt = "RYGBK";
 		res = attempt.matches(pattern);
-		System.out.println(attempt + " is " + (res ? "valid" : "invalid"));
+		System.out.print(attempt + " is " + (res ? "valid" : "invalid") + "; ");
 		assertFalse(res);
 		
 		// Valid characters
 		attempt = "RYGB";
 		res = attempt.matches(pattern);
-		System.out.println(attempt + " is " + (res ? "valid" : "invalid"));
+		System.out.print(attempt + " is " + (res ? "valid" : "invalid") + "; ");
 		assertTrue(res);
 	}
 	
@@ -43,7 +45,7 @@ public class GameTest {
 		
 		Result res = m.tryAnswer(attempt);
 		
-		System.out.println("WinTest = " + res); 
+		System.out.println("winTest = " + res); 
 		
 		assertTrue(res.equals(new Result(4, 0, 0, 0)));
 	}
@@ -56,7 +58,7 @@ public class GameTest {
 		
 		Result res = m.tryAnswer(attempt);
 		
-		System.out.println("AlmostWinTest = " + res);
+		System.out.println("almostWinTest = " + res);
 		
 		assertTrue(res.equals(new Result(3, 0, 1, 0)));
 	}
@@ -69,7 +71,7 @@ public class GameTest {
 		
 		Result res = m.tryAnswer(attempt);
 		
-		System.out.println("NoGreyTest = " + res);
+		System.out.println("noGreyTest = " + res);
 		
 		assertTrue(res.equals(new Result(2, 2, 0, 0)));
 	}
@@ -82,7 +84,7 @@ public class GameTest {
 		
 		Result res = m.tryAnswer(attempt);
 		
-		System.out.println("NoWhiteTest = " + res);
+		System.out.println("noWhiteTest = " + res);
 		
 		assertTrue(res.equals(new Result(0, 4, 0, 0)));
 	}
@@ -95,7 +97,7 @@ public class GameTest {
 		
 		Result res = m.tryAnswer(attempt);
 		
-		System.out.println("HalfWayThereTest = " + res);
+		System.out.println("halfWayThereTest = " + res);
 		
 		assertTrue(res.equals(new Result(2, 0, 2, 0)));
 	}
@@ -108,7 +110,7 @@ public class GameTest {
 		
 		Result res = m.tryAnswer(attempt);
 		
-		System.out.println("TotalLossTest = " + res);
+		System.out.println("totalLossTest = " + res);
 		
 		assertTrue(res.equals(new Result(0, 0, 4, 0)));
 	}

@@ -24,7 +24,7 @@ public class ControllerServer extends UnicastRemoteObject implements IController
 	}
 	
 	@Override
-	public String login(String username) throws RemoteException {
+	public synchronized String login(String username) throws RemoteException {
 		Game g = new Game(username);
 		
 		games.add(g);
@@ -33,7 +33,7 @@ public class ControllerServer extends UnicastRemoteObject implements IController
 	}
 	
 	@Override
-	public void logout(String userId) throws RemoteException {
+	public synchronized void logout(String userId) throws RemoteException {
 		Game g = null;
 		
 		for (Game game : games) {
@@ -49,25 +49,25 @@ public class ControllerServer extends UnicastRemoteObject implements IController
 	}
 	
 	@Override
-	public void startGame(String userId) throws RemoteException {
+	public synchronized void startGame(String userId) throws RemoteException {
 		Game g = getGame(userId);
 		g.startGame();
 	}
 	
 	@Override
-	public void startGame(String userId, Color[] answer) throws RemoteException {
+	public synchronized void startGame(String userId, Color[] answer) throws RemoteException {
 		Game g = getGame(userId);
 		g.startGame(answer);
 	}
 	
 	@Override
-	public void finishGame(String userId) throws RemoteException {
+	public synchronized void finishGame(String userId) throws RemoteException {
 		Game g = getGame(userId);
 		g.finishGame();
 	}
 	
 	@Override
-	public IResult tryAnswer(String userId, Color[] attempt) throws RemoteException {
+	public synchronized IResult tryAnswer(String userId, Color[] attempt) throws RemoteException {
 		Game g = getGame(userId);
 		
 		IResult res = g.tryAnswer(attempt);
@@ -80,7 +80,7 @@ public class ControllerServer extends UnicastRemoteObject implements IController
 	}
 	
 	@Override
-	public String[] getLeaderboard() throws RemoteException {
+	public synchronized String[] getLeaderboard() throws RemoteException {
 		String[] topPlayers = new String[5];
 		
 		if (this.leaderboard.isEmpty()) {
